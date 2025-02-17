@@ -13,6 +13,7 @@ from matplotlib import patches
 from matplotlib import transforms
 from matplotlib import ticker
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+import plotly.express as px
 
 
 # Plotting class for speedometer gauges, modified to match Louise Arnal's EFAS4.0 designs
@@ -183,9 +184,10 @@ class SpeedometerPlot():
 
         fig.set_size_inches(16.5, 11.7) # A3 size
         fig.subplots_adjust(left=0.1, bottom=0, right=1, top=1, wspace=-0.2, hspace=0.0)
-
+        
         # Save the figure
         plt.savefig(path_out+'.'+self.plot_params.file_format, format=self.plot_params.file_format)
+        return fig
 
 
 class MonthlyBoxPlot():
@@ -518,6 +520,7 @@ class MonthlyBoxPlot():
         
         # Save the linear scale figure
         plt.savefig(path_out+'.'+self.plot_params.file_format, format=self.plot_params.file_format)
+        return fig
 
 
 class TimeSeriesPlot():
@@ -544,7 +547,10 @@ class TimeSeriesPlot():
             ax.text(x=maxdate+time_period*0.01, y=threshold, s=label, color=color, verticalalignment='center', fontsize=self.threshold_size)
             ax.set_xlim(mindate-time_period*0.05, maxdate+time_period*0.1)
 
-
+    def plot_interactive_threshold(self, fig, max_value, threshold, color, label):
+        if max_value > threshold:
+            fig.add_hline(y=threshold, line_width=3, line_dash="dash", line_color=color, name=label, showlegend=True)
+    
     def plot(self, path_out, index, sim, obs, thresholds):
 
         # FIGURE OF CALIBRATION PERIOD TIME SERIES
@@ -634,6 +640,32 @@ class TimeSeriesPlot():
 
         # Save the linear scale figure
         plt.savefig(path_out+'.'+self.plot_params.file_format, format=self.plot_params.file_format)
+        return fig
+
+    def plot_interactive(self, path_out, index, sim, obs, thresholds):
+
+        Q = pd.DataFrame({'Sim': sim, 'Obs': obs}, index=index)
+        Q['date'] = Q.index
+        max_value = np.nanmax([sim, obs])
+        
+        fig = px.scatter(Q, x='date', y=['Obs', 'Sim'], hover_data={"date": "|%d-%m-%Y"},
+                         title='Simulated vs Observed Timeseries', color_discrete_map={'Sim': 'red', 'Obs': 'black'})
+        fig.update_traces(mode="lines+markers", opacity=.6)
+                
+        fig.update_xaxes(
+            dtick="M1",
+            tickformat="%b\n%Y",
+            ticklabelmode="period")
+        
+        fig.update_xaxes(rangeslider_visible=True)
+
+        if thresholds is not None:
+            self.plot_interactive_threshold(fig, max_value, thresholds['rl1.5'], self.green, label='1.5-year')
+            self.plot_interactive_threshold(fig, max_value, thresholds['rl2'], self.orange, label='2-year')
+            self.plot_interactive_threshold(fig, max_value, thresholds['rl5'], self.red, label='5-year')
+            self.plot_interactive_threshold(fig, max_value, thresholds['rl20'], self.magenta, label='20-year')
+        
+        return fig
 
 
 class QQPlot():
@@ -668,7 +700,8 @@ class QQPlot():
         
         # Save the linear scale figure
         plt.savefig(path_out+'.'+self.plot_params.file_format, format=self.plot_params.file_format)
-
+        return fig
+        
 
 class BestParamPlot():
 
@@ -707,7 +740,8 @@ class BestParamPlot():
         
         # Save the table with the set of the best parameters' values
         plt.savefig(path_out+'.'+'png', format='png', dpi=300)
-
+        return fig
+        
 
 class SpatialPlot():
 
@@ -847,3 +881,4 @@ class SpatialPlot():
         
         # Save the spatial plot
         plt.savefig(path_out+'.png', format='png', dpi=300)
+        return fig
