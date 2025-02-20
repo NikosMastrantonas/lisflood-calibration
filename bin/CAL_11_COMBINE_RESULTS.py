@@ -13,7 +13,7 @@ if __name__ == '__main__':
     settings_file = args.settings_file
     
     # get the main directory from where inputs and outputs will be read/saved
-    main_dir = settings_file.replace('/data/templates/settings.txt', '')
+    main_dir = settings_file.replace('/catchments/settings.txt', '')
     
     # read stations metadata and keep columns of interest
     metadata_stations = os.path.join(main_dir, 'data/stations/stations_data.csv')
