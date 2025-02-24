@@ -65,32 +65,32 @@ def create_products(cfg, subcatch, obj):
 
     # create speedometer plots
     speedo = evaluation.SpeedometerPlot(cfg.plot_params)
-    speedo.plot(os.path.join(subcatch.path_out, 'speedo'), stats)
+    speedo.plot(stats, os.path.join(subcatch.path_out, 'speedo'))
     os.system('convert {0}.svg {0}.pdf'.format(os.path.join(subcatch.path_out, 'speedo')))
 
     # create box plot
     box = evaluation.MonthlyBoxPlot(cfg.plot_params)
-    box.plot(os.path.join(subcatch.path_out, 'boxy'), sim_monthly, obs_monthly)
+    box.plot(sim_monthly, obs_monthly, os.path.join(subcatch.path_out, 'boxy'))
     os.system('convert {0}.svg {0}.pdf'.format(os.path.join(subcatch.path_out, 'boxy')))
 
     # create time series plot
     ts = evaluation.TimeSeriesPlot(cfg.plot_params)
-    ts.plot(os.path.join(subcatch.path_out, 'timmy'), Q.index, Q['Sim'].values, Q['Obs'].values, return_periods)
+    ts.plot(Q.index, Q['Sim'].values, Q['Obs'].values, return_periods, os.path.join(subcatch.path_out, 'timmy'))
     os.system('convert {0}.svg {0}.pdf'.format(os.path.join(subcatch.path_out, 'timmy')))
 
     # create Q-Q plot
     qq = evaluation.QQPlot(cfg.plot_params)
-    qq.plot(os.path.join(subcatch.path_out, 'qqy'), Q.index, Q['Sim'].values, Q['Obs'].values)
+    qq.plot(Q.index, Q['Sim'].values, Q['Obs'].values, os.path.join(subcatch.path_out, 'qqy'))
     os.system('convert {0}.svg {0}.pdf'.format(os.path.join(subcatch.path_out, 'qqy')))
     
     # create best parameters table plot
     bestparmtrs = evaluation.BestParamPlot(cfg.plot_params)
-    bestparmtrs.plot(os.path.join(subcatch.path_out, 'bestparmtrs'), os.path.join(subcatch.path, 'pareto_front.csv'))
+    bestparmtrs.plot(os.path.join(subcatch.path, 'pareto_front.csv'), os.path.join(subcatch.path_out, 'bestparmtrs'))
     os.system('convert {0}.png {0}.pdf'.format(os.path.join(subcatch.path_out, 'bestparmtrs')))
 
     # create (inter)catchment plot
     spatialplot = evaluation.SpatialPlot(cfg.plot_params)
-    spatialplot.plot(os.path.join(subcatch.path_out, 'spatial'), os.path.join(subcatch.path, 'maps'))
+    spatialplot.plot(os.path.join(subcatch.path, 'maps'), os.path.join(subcatch.path_out, 'spatial'))
     os.system('convert {0}.png {0}.pdf'.format(os.path.join(subcatch.path_out, 'spatial')))
     
     # compute contingency table and export
